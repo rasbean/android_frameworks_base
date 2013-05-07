@@ -1899,6 +1899,10 @@ mContext.getContentResolver().registerContentObserver(
                     mPieTrigger[i] = null;
                 }
             }
+            // destroy the pie container
+            mPieContainer = null;
+            // unregister listener and receiver
+            mPieController.destroyPie();
         }
     }
 
