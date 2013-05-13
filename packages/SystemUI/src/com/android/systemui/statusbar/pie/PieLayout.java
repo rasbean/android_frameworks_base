@@ -20,7 +20,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -83,7 +82,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private int mPadding;
 
     private boolean mActive = false;
-    private boolean mSettingsObserverRegistered = false;
     private int mPointerId;
     private Point mCenter = new Point(0, 0);
     private Position mPosition = Position.LEFT;
@@ -263,45 +261,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     }
     private OnSnapListener mOnSnapListener = null;
 
-    private final class SettingsObserver extends ContentObserver {
-        SettingsObserver(Handler handler) {
-            super(handler);
-        }
-
-        void observe() {
-            ContentResolver resolver = mContext.getContentResolver();
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SIZE), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_GRAVITY), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_TRIGGER_MASK), false, this);
-	    resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_MIRROR_RIGHT), false, this); 
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SHOW_BACKGROUND), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_BACKGROUND_COLOR), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_BACKGROUND_ALPHA), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SNAP_COLOR), false, this);
-            resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SHOW_SNAP), false, this);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            mShowBackground = Settings.System.getInt(mContext.getContentResolver(),
-                    Settings.System.PIE_SHOW_BACKGROUND, 1) == 1;
-
-            getDimensions();
-            getColors();
-            setupSnapPoints(getWidth(), getHeight(), true);
-        }
-    }
-    private SettingsObserver mSettingsObserver;
-
     public PieLayout(Context context) {
         super(context);
 
@@ -310,6 +269,9 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
 
         setDrawingCacheEnabled(false);
         setVisibility(View.GONE);
+	setWillNotDraw(false);
+        setFocusable(true);
+        setOnTouchListener(this); 
 
         getDimensions();
         getColors();
@@ -401,17 +363,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
                 mSnapPoints[g.INDEX] = null;
             }
         }
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        setWillNotDraw(false);
-        setFocusable(true);
-        setOnTouchListener(this);
-
-        mSettingsObserver = new SettingsObserver(new Handler());
-        mSettingsObserver.observe();
-        mSettingsObserverRegistered = true;
     }
 
     @Override
@@ -631,9 +582,10 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
 
         for (PieSlice slice : mSlices) {
             if ((slice.flags & viewMask) == viewMask && (slice.flags & PieSlice.IMPORTANT) != 0) {
-                estimatedWidth = Math.max(estimatedWidth, slice.estimateWidth()) * mPieScale;
+                estimatedWidth = Math.max(estimatedWidth, slice.estimateWidth());
             }
         }
+	estimatedWidth = estimatedWidth  * mPieScale; 
 
         if (mPosition == Position.LEFT || mPosition == Position.RIGHT) {
             mCenter.x = mPadding + (int) ((getWidth() - 2 * mPadding) * mPosition.FACTOR);
@@ -674,6 +626,12 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
 
         mActivateStartDebug = SystemClock.uptimeMillis();
 
+	mShowBackground = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PIE_SHOW_BACKGROUND, 1) == 1;
+        getDimensions();
+        getColors();
+        setupSnapPoints(getWidth(), getHeight(), true); 
+
         mPosition = position;
         mLayoutDoneForPosition = null;
         mActive = true;
@@ -694,7 +652,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         mBackgroundAnimator.start();
 
         setVisibility(View.VISIBLE);
-
 
         Slog.d(TAG, "activate finished within "
                 + (SystemClock.uptimeMillis() - mActivateStartDebug) + " ms");
@@ -723,14 +680,6 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
             mAnimationListenerCache.clear();
             mDrawableCache.clear();
             updateActiveItem(null, false);
-        }
-    }
-
-    public void destroyPieContainer() {
-        clearSlices();
-        if (mSettingsObserverRegistered) {
-            mSettingsObserverRegistered = false;
-            mContext.getContentResolver().unregisterContentObserver(mSettingsObserver);
         }
     }
 
