@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:focusable="true"
-                android:gravity="left|bottom"
+                android:gravity="left|top"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textColor="#000"
                 android:singleLine="true" />
@@ -124,11 +124,31 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:focusable="true"
-                android:gravity="right|bottom"
+                android:gravity="right|top"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textColor="#000"
                 android:singleLine="true" />
-        </view>
-    </RelativeLayout>
+            </view>
+        </RelativeLayout>
+    
+                <ImageView
+                    android:id="@+id/recents_clear_left"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|left"
+                    android:src="@drawable/ic_recents_clear" />
+
+                <ImageView
+                    android:id="@+id/recents_clear_right"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|right"
+                    android:src="@drawable/ic_recents_clear" />
+    
+       </FrameLayout>
 
 </com.android.systemui.recent.RecentsPanelView>

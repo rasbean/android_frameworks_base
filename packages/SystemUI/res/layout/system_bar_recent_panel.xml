@@ -96,6 +96,7 @@
         android:gravity="bottom"
         android:layout_gravity="bottom">
 
+<<<<<<< HEAD
         <view class="com.android.systemui.recent.LinearColorBar"
             android:id="@+id/ram_usage_bar"
             android:layout_width="fill_parent"
@@ -119,6 +120,27 @@
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textColor="#000"
                 android:singleLine="true" />
+=======
+                <ImageView
+                    android:id="@+id/recents_clear_left"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|left"
+                    android:src="@drawable/ic_recents_clear" />
+
+                <ImageView
+                    android:id="@+id/recents_clear_right"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|right"
+                    android:src="@drawable/ic_recents_clear" />
+
+        </FrameLayout>
+>>>>>>> 1317a3a... Clear recents side switcher [2/2]
 
             <TextView
                 android:id="@+id/ramText"

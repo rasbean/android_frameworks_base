@@ -2928,14 +2928,21 @@ public final class Settings {
          */
         public static final String STATUSBAR_PEEK = "statusbar_peek";
 
-	/**
+     	/**
          * HALO enabled, should default to 0 (HALO is disabled)
          * @hide
          */
         public static final String HALO_ENABLED = "halo_enabled";
 
- 	/**
-         * HALO, should default to 0 (no, do not show)
+        /**
+         * Choose side for Clear button on Recents window
+         * 0 = left, 1 = right
+         * @hide
+         */
+        public static final String CLEAR_RECENTS_POSITION = "clear_recents_position";
+
+        /**
+         * Whether to show the IME switcher in the status bar
          * @hide
          */
         public static final String HALO_ACTIVE = "halo_active";
@@ -2952,13 +2959,13 @@ public final class Settings {
          */
         public static final String HALO_HIDE = "halo_hide"; 
 
-	/**
+	    /**
          * HALO size fraction, default is 1.0f (normal)
          * @hide
          */
         public static final String HALO_SIZE = "halo_size";
 
-	/**
+	    /**
          * HALO pause activities?, defaults to 0 (no, do not pause) on devices which isLargeRAM() == true
          * otherwise it defaults to 1 (yes, do pause)
          * @hide
@@ -3001,13 +3008,13 @@ public final class Settings {
          */
         public static final String HALO_CIRCLE_COLOR = "halo_circle_color";
 
-	/**
+	    /**
          * Do you want popups/floating windows?
          * @hide
          */
         public static final String WE_WANT_POPUPS = "we_want_popups"; 
 
-	/**
+	    /**
          * Sets transparency of statusbar
          * @hide
          */
@@ -3036,7 +3043,7 @@ public final class Settings {
          */
         public static final String STATUSBAR_TOGGLES_BRIGHTNESS_LOC = "statusbar_toggles_brightness_loc"; 
 
-	/**
+	    /**
          * Battery warning preferences
          *
          * 0 = show dialog + play sound (default)
@@ -3049,7 +3056,7 @@ public final class Settings {
          */
         public static final String POWER_UI_LOW_BATTERY_WARNING_POLICY = "power_ui_low_battery_warning_policy";
 
-	/**
+	    /**
          * Whether or not to use the app sidebar
          *
          * @hide
@@ -3063,14 +3070,14 @@ public final class Settings {
          */
         public static final String APP_SIDEBAR_TRANSPARENCY = "app_sidebar_transparency";
 
-	/**
+	    /**
          * Disable text labels for app sidebar items
          *
          * @hide
          */
         public static final String APP_SIDEBAR_DISABLE_LABELS = "app_sidebar_disable_labels";
 
-       /**
+        /**
          * Position of app sidebar
          *
          * @hide
@@ -3091,7 +3098,7 @@ public final class Settings {
           */
         public static final String APP_SIDEBAR_TRIGGER_TOP = "app_sidebar_trigger_top";
  
-         /**
+        /**
          * Height of the appbar trigger
          *
          * @hide
@@ -3105,20 +3112,20 @@ public final class Settings {
          */
         public static final String APP_SIDEBAR_SHOW_TRIGGER = "app_sidebar_show_trigger";
 
-	/**
+	    /**
          * Screen-On Notification Light,
          * should default to 1 (yes, Notification Light is enabled when screen is on)
          * @hide
          */
-        public static final String SCREEN_ON_NOTIFICATION_LED = "screen_on_notification_led";  
+        public static final String SCREEN_ON_NOTIFICATION_LED = "screen_on_notification_led";
 
-	/**
+        /**
          * Notifications Expand Behavior
          * @hide
          */
         public static final String NOTIFICATIONS_BEHAVIOUR = "notifications_behaviour"; 
 
-	/**
+	    /**
          * Sets the portrait background of notification drawer
          * @hide
          */

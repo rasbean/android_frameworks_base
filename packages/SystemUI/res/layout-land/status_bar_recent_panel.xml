@@ -60,7 +60,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:scaleType="center"
-            android:layout_gravity="top|right"
+            android:layout_gravity="bottom|right"
             android:src="@drawable/ic_recents_clear" />
 
     </FrameLayout>
@@ -75,8 +75,8 @@
         android:id="@+id/recents_ram_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom"
-        android:layout_gravity="bottom">
+        android:gravity="top"
+        android:layout_gravity="top">
 
         <view class="com.android.systemui.recent.LinearColorBar"
             android:id="@+id/ram_usage_bar"
@@ -90,6 +90,26 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:paddingBottom="1dp">
+            
+                <ImageView
+                    android:id="@+id/recents_clear_left"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|left"
+                    android:src="@drawable/ic_recents_clear" />
+
+                <ImageView
+                    android:id="@+id/recents_clear_right"
+                    android:clickable="true"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="center"
+                    android:layout_gravity="bottom|right"
+                    android:src="@drawable/ic_recents_clear" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/usedMemText"
