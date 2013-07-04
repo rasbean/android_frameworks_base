@@ -79,6 +79,7 @@
             android:layout_marginBottom="36dip"
             android:visibility="invisible" />
 
+<<<<<<< HEAD
     </FrameLayout>
 
     <com.android.systemui.recent.StatusBarTouchProxy
@@ -124,20 +125,53 @@
                 <ImageView
                     android:id="@+id/recents_clear_left"
                     android:clickable="true"
+=======
+                <FrameLayout
+>>>>>>> 8201754... Recents RAM circle [1/2]
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:scaleType="center"
-                    android:layout_gravity="bottom|left"
-                    android:src="@drawable/ic_recents_clear" />
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_gravity="bottom|left" >
 
-                <ImageView
-                    android:id="@+id/recents_clear_right"
-                    android:clickable="true"
+                    <com.android.systemui.recent.CircleMemoryMeter
+                        android:id="@+id/circle_meter_left"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <ImageView
+                        android:id="@+id/recents_clear_left"
+                        android:clickable="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_recents_clear" />
+
+                </FrameLayout>
+
+                <FrameLayout
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:scaleType="center"
-                    android:layout_gravity="bottom|right"
-                    android:src="@drawable/ic_recents_clear" />
+                    android:layout_marginBottom="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_gravity="bottom|right" >
+
+                    <com.android.systemui.recent.CircleMemoryMeter
+                        android:id="@+id/circle_meter_right"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <ImageView
+                        android:id="@+id/recents_clear_right"
+                        android:clickable="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_recents_clear" />
+
+                </FrameLayout>
 
         </FrameLayout>
 >>>>>>> 1317a3a... Clear recents side switcher [2/2]
