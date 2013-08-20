@@ -2024,6 +2024,9 @@
   <java-symbol type="string" name="symbol_picker_z" />
   <java-symbol type="string" name="symbol_picker_Z" />
 
+  <!-- Screenshort Trash -->
+  <java-symbol type="string" name="trash" />
+
   <!-- Pie Controls -->
   <java-symbol type="bool" name="config_allowPieService" />
   <java-symbol type="dimen" name="pie_trigger_thickness" />
