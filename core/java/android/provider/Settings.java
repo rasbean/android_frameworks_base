@@ -1696,6 +1696,11 @@ public final class Settings {
         public static final String LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED =
             "lock_pattern_tactile_feedback_enabled";
 
+        /**
+         * Ability to enable/disable Daul pane prefs.
+         */
+        public static final String DUAL_PANE_PREFS = "dual_pane_prefs";
+
 
         /**
          * A formatted string of the next alarm that is set, or the empty string
@@ -3307,6 +3312,32 @@ public final class Settings {
             "navigation_ring_targets_2",
         };
 
+        /**
+         * ListView Animations
+         * 0 == None
+         * 1 == Wave (Left)
+         * 2 == Wave (Right)
+         * 3 == Scale
+         * 4 == Alpha
+         * 5 == Stack (Top)
+         * 6 == Stack (Bottom)
+         * 7 == Translate (Left)
+         * 8 == Translate (Right)
+         */
+        public static final String LISTVIEW_ANIMATION = "listview_animation";
+
+        /**
+         * ListView Interpolators
+         * 0 == None
+         * 1 == accelerate_interpolator
+         * 2 == decelerate_interpolator
+         * 3 == accelerate_decelerate_interpolator
+         * 4 == anticipate_interpolator
+         * 5 == overshoot_interpolator
+         * 6 == anticipate_overshoot_interpolator
+         * 7 == bounce_interpolator
+         */
+        public static final String LISTVIEW_INTERPOLATOR = "listview_interpolator";
         /**
          * Volume key controls ringtone or media sound stream
          *
