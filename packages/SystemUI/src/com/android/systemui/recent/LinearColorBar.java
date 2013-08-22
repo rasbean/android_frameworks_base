@@ -73,7 +73,7 @@ public class LinearColorBar extends LinearLayout {
 
     private void updateModeAndColors() {
         mRamBarMode = (Settings.System.getInt(mContext.getContentResolver(),
-                             Settings.System.RECENTS_RAM_BAR_MODE, 0));
+                             Settings.System.RECENTS_RAM_BAR_MODE, 3));
         mUsedMemColor = (Settings.System.getInt(mContext.getContentResolver(),
                                Settings.System.RECENTS_RAM_BAR_MEM_COLOR, USED_MEM_COLOR));
         mUsedCacheMemColor = (Settings.System.getInt(mContext.getContentResolver(),
