@@ -851,7 +851,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         mRamUsageBar = (LinearColorBar) findViewById(R.id.ram_usage_bar);
 
         int mRamBarMode = (Settings.System.getInt(mContext.getContentResolver(),
-                             Settings.System.RECENTS_RAM_BAR_MODE, 0));
+                             Settings.System.RECENTS_RAM_BAR_MODE, 3));
 
         if (mRamBarMode != 0 && mRamUsageBar != null) {
 
