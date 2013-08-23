@@ -2745,11 +2745,24 @@ public final class Settings {
         public static final String QS_DYNAMIC_USBTETHER = "qs_dyanmic_usbtether";
 
         /**
+<<<<<<< HEAD
          * Quick Settings Panel Dynamic Tiles
          *
          * @hide
          */
         public static final String QS_DYNAMIC_DOCK_BATTERY = "qs_dyanmic_dock_battery";
+=======
+         * Configurable LTE or 4G icon - up to per user defined
+         * @hide
+         */
+        public static final String SHOW_LTE_OR_FOURGEE = "show_lte_or_fourgee";
+
+        /**
+        * Notification Power Widget - Custom Brightness Mode
+        * @hide
+        */
+        public static final String EXPANDED_BRIGHTNESS_MODE = "expanded_brightness_mode";
+>>>>>>> d3c927c... Configurable up to user (LTE or 4G)
 
         /**
          * Quick Settings Panel Dynamic Tiles
