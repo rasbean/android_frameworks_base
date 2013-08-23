@@ -689,6 +689,7 @@ public class PhoneStatusBar extends BaseStatusBar {
             } else {
                 mNetworkController.addCombinedLabelView(mCarrierLabel);
             }
+        }
 
         mWifiLabel = (TextView)mStatusBarWindow.findViewById(R.id.wifi_text);
         mNetworkController.addWifiLabelView(mWifiLabel);
