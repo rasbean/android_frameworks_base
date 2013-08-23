@@ -5269,6 +5269,14 @@ public final class Settings {
         public static final String PRIVACY_GUARD_DEFAULT = "privacy_guard_default";
 
         /**
+         * use Alt Activity Resolver Grid
+         * boolean
+         *
+         * @hide
+         */
+        public static final String ACTIVITY_RESOLVER_USE_ALT = "activity_resolver_use_alt";
+ 
+        /**
          * This are the settings to be backed up.
          *
          * NOTE: Settings are backed up and restored in the order they appear
