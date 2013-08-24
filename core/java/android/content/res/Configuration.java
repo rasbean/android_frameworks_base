@@ -562,7 +562,7 @@ public final class Configuration implements Parcelable, Comparable<Configuration
      * @hide Internal book-keeping.
      */
     public int seq;
-    
+
     /**
      * Construct an invalid Configuration.  You must call {@link #setToDefaults}
      * for this object to be valid.  {@more}

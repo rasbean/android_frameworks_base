@@ -194,7 +194,7 @@ public class DisplayMetrics {
 
     public DisplayMetrics() {
     }
-    
+
     public void setTo(DisplayMetrics o) {
         widthPixels = o.widthPixels;
         heightPixels = o.heightPixels;

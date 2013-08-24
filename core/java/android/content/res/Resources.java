@@ -118,7 +118,7 @@ public class Resources {
     private final Configuration mConfiguration = new Configuration();
     /*package*/ final DisplayMetrics mMetrics = new DisplayMetrics();
     private NativePluralRules mPluralRule;
-    
+
     private CompatibilityInfo mCompatibilityInfo;
 
     static {
