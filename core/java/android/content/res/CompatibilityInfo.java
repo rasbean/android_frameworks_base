@@ -31,7 +31,7 @@ import android.view.WindowManager.LayoutParams;
 /**
  * CompatibilityInfo class keeps the information about compatibility mode that the application is
  * running under.
- * 
+ *
  *  {@hide}
  */
 public class CompatibilityInfo implements Parcelable {
