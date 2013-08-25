@@ -265,7 +265,7 @@ public class TabletStatusBar extends BaseStatusBar implements
         mNotificationPanel.setOnTouchListener(
                 new TouchOutsideListener(MSG_CLOSE_NOTIFICATION_PANEL, mNotificationPanel));
 
-        // the battery icon
+	// the battery icon
         mBatteryController.addIconView((ImageView)mNotificationPanel.findViewById(R.id.battery));
         mBatteryController.addLabelView(
                 (TextView)mNotificationPanel.findViewById(R.id.battery_text));
@@ -678,6 +678,11 @@ public class TabletStatusBar extends BaseStatusBar implements
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         context.registerReceiver(mBroadcastReceiver, filter);
 
+	if (mRecreating) {
+            removeSidebarView();
+        }
+        addSidebarView();
+
         return sb;
     }
 
@@ -1070,7 +1075,7 @@ public class TabletStatusBar extends BaseStatusBar implements
 
     // called by TabletTicker when it's done with all queued ticks
     public void doneTicking() {
-        mFeedbackIconArea.setVisibility(View.VISIBLE);
+	mFeedbackIconArea.setVisibility(View.VISIBLE);
     }
 
     public void animateExpandNotificationsPanel() {
