@@ -3680,6 +3680,13 @@ public final class Settings {
          */
         public static final String NOTIFICATION_SHOW_WIFI_SSID = "notification_show_wifi_ssid"; 
 
+        /**
+         * use Alt Activity Resolver Grid
+         * boolean
+         *
+         * @hide
+         */
+        public static final String ACTIVITY_RESOLVER_USE_ALT = "activity_resolver_use_alt";
     }
 
     /**
@@ -5267,7 +5274,7 @@ public final class Settings {
          * @hide
          */
         public static final String PRIVACY_GUARD_DEFAULT = "privacy_guard_default";
-
+ 
         /**
          * This are the settings to be backed up.
          *
