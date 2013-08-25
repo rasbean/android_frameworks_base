@@ -38,16 +38,16 @@ public class ExtendedPropertiesUtils {
     /**
      * Public variables
      */
-    public static final String CYANFOX_MAINCONF = "properties.conf";
-    public static final String CYANFOX_BACKUPCONF = "backup.conf";
-    public static final String CYANFOX_PROPERTIES = "/system/etc/cyanfox/" + CYANFOX_MAINCONF;
-    public static final String CYANFOX_DIR = "/system/etc/cyanfox/";
-    public static final String CYANFOX_PREFIX = "%";
-    public static final String CYANFOX_SEPARATOR = ".";
-    public static final String CYANFOX_STRING_DELIMITER = "\\|";
-    public static final String CYANFOX_DPI_SUFFIX = ".dpi";
-    public static final String CYANFOX_DENSITY_SUFFIX = ".den";
-    public static final String CYANFOX_SCALEDDENSITY_SUFFIX = ".sden";
+    public static final String BEERBONG_MAINCONF = "properties.conf";
+    public static final String BEERBONG_BACKUPCONF = "backup.conf";
+    public static final String BEERBONG_PROPERTIES = "/system/etc/cyanfox/" + BEERBONG_MAINCONF;
+    public static final String BEERBONG_DIR = "/system/etc/cyanfox/";
+    public static final String BEERBONG_PREFIX = "%";
+    public static final String BEERBONG_SEPARATOR = ".";
+    public static final String BEERBONG_STRING_DELIMITER = "\\|";
+    public static final String BEERBONG_DPI_SUFFIX = ".dpi";
+    public static final String BEERBONG_DENSITY_SUFFIX = ".den";
+    public static final String BEERBONG_SCALEDDENSITY_SUFFIX = ".sden";
 
     public static HashMap<String, String> mPropertyMap = new HashMap<String, String>();
     public static ActivityThread mMainThread;
@@ -101,15 +101,15 @@ public class ExtendedPropertiesUtils {
             // Load default values to be used in case that property is
             // missing from configuration.
             boolean isSystemApp = info.path.contains("system/app");
-            int defaultDpi = Integer.parseInt(getProperty(CYANFOX_PREFIX + (isSystemApp ?
+            int defaultDpi = Integer.parseInt(getProperty(BEERBONG_PREFIX + (isSystemApp ?
                     "system_default_dpi" : (info.path.length() == 0 ? "0" : "user_default_dpi"))));
 
             // DPI fetching.
-            info.dpi = Integer.parseInt(getProperty(info.name + CYANFOX_DPI_SUFFIX, String.valueOf(defaultDpi)));
+            info.dpi = Integer.parseInt(getProperty(info.name + BEERBONG_DPI_SUFFIX, String.valueOf(defaultDpi)));
 
             // Extra density fetching.
-            info.density = Float.parseFloat(getProperty(info.name + CYANFOX_DENSITY_SUFFIX));
-            info.scaledDensity = Float.parseFloat(getProperty(info.name + CYANFOX_SCALEDDENSITY_SUFFIX));
+            info.density = Float.parseFloat(getProperty(info.name + BEERBONG_DENSITY_SUFFIX));
+            info.scaledDensity = Float.parseFloat(getProperty(info.name + BEERBONG_SCALEDDENSITY_SUFFIX));
 
             // In case that densities aren't determined in previous step
             // we calculate it by dividing DPI by default density (160).
@@ -331,7 +331,7 @@ public class ExtendedPropertiesUtils {
      */
     public static void refreshProperties() {
         mPropertyMap.clear();
-        String[] props = readFile(CYANFOX_PROPERTIES).split("\n");
+        String[] props = readFile(BEERBONG_PROPERTIES).split("\n");
         for (int i = 0; i < props.length; i++) {
             if (!props[i].startsWith("#")) {
                 String[] pair = props[i].split("=");
@@ -372,7 +372,7 @@ public class ExtendedPropertiesUtils {
                 String result = mPropertyMap.get(prop);
                 if (result == null)
                     return def;
-                if (result.startsWith(CYANFOX_PREFIX)) {
+                if (result.startsWith(BEERBONG_PREFIX)) {
                     result = getProperty(result, def);
                 }
                 return result;
@@ -398,12 +398,12 @@ public class ExtendedPropertiesUtils {
      * @return current stored value of property
      */
     public static String readProperty(String prop, String def) {
-        String[] props = readFile(CYANFOX_PROPERTIES).split("\n");
+        String[] props = readFile(BEERBONG_PROPERTIES).split("\n");
         for (int i = 0; i < props.length; i++) {
             if (props[i].contains("=")) {
                 if (props[i].substring(0, props[i].lastIndexOf("=")).equals(prop)) {
                     String result = props[i].replace(prop + "=", "").trim();
-                    if (result.startsWith(CYANFOX_PREFIX)) {
+                    if (result.startsWith(BEERBONG_PREFIX)) {
                         result = getProperty(result, def);
                     }
                     return result;
@@ -428,13 +428,13 @@ public class ExtendedPropertiesUtils {
         int result = 0;
         boolean getProp = false;
 
-        if (property.endsWith(CYANFOX_DPI_SUFFIX)) {
+        if (property.endsWith(BEERBONG_DPI_SUFFIX)) {
             ApplicationInfo appInfo = getAppInfoFromPackageName(property.substring(0, property.length()
-                    - CYANFOX_DPI_SUFFIX.length()));
+                    - BEERBONG_DPI_SUFFIX.length()));
             if (appInfo != null) {
                 boolean isSystemApp =
                         appInfo.sourceDir.substring(0, appInfo.sourceDir.lastIndexOf("/")).contains("system/app");
-                result = Integer.parseInt(getProperty(property, getProperty(CYANFOX_PREFIX + (isSystemApp ?
+                result = Integer.parseInt(getProperty(property, getProperty(BEERBONG_PREFIX + (isSystemApp ?
                         "system_default_dpi" : "user_default_dpi"))));
             } else {
                 getProp = true;
@@ -447,8 +447,8 @@ public class ExtendedPropertiesUtils {
             result = Integer.parseInt(getProperty(property));
 
         if (result == 0) {
-            result = Integer.parseInt(property.endsWith("dpi") ? getProperty(CYANFOX_PREFIX + "rom_default_dpi")
-                    : getProperty(CYANFOX_PREFIX + "rom_default_layout"));
+            result = Integer.parseInt(property.endsWith("dpi") ? getProperty(BEERBONG_PREFIX + "rom_default_dpi")
+                    : getProperty(BEERBONG_PREFIX + "rom_default_layout"));
         }
 
         return result;
