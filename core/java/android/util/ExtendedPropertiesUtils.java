@@ -40,12 +40,14 @@ public class ExtendedPropertiesUtils {
      */
     public static final String BEERBONG_MAINCONF = "properties.conf";
     public static final String BEERBONG_BACKUPCONF = "backup.conf";
-    public static final String BEERBONG_PROPERTIES = "/system/etc/cyanfox/" + BEERBONG_MAINCONF;
-    public static final String BEERBONG_DIR = "/system/etc/cyanfox/";
+    public static final String BEERBONG_PROPERTIES = "/system/etc/beerbong/" + BEERBONG_MAINCONF;
+    public static final String BEERBONG_DIR = "/system/etc/beerbong/";
     public static final String BEERBONG_PREFIX = "%";
     public static final String BEERBONG_SEPARATOR = ".";
     public static final String BEERBONG_STRING_DELIMITER = "\\|";
     public static final String BEERBONG_DPI_SUFFIX = ".dpi";
+    public static final String BEERBONG_LAYOUT_SUFFIX = ".layout";
+    public static final String BEERBONG_FORCE_SUFFIX = ".force";
     public static final String BEERBONG_DENSITY_SUFFIX = ".den";
     public static final String BEERBONG_SCALEDDENSITY_SUFFIX = ".sden";
 
@@ -56,8 +58,8 @@ public class ExtendedPropertiesUtils {
     public static Display mDisplay;
     public static List<PackageInfo> mPackageList;
 
-    public static CyanfoxAppInfo mGlobalHook = new CyanfoxAppInfo();
-    public CyanfoxAppInfo mLocalHook = new CyanfoxAppInfo();
+    public static BeerbongAppInfo mGlobalHook = new BeerbongAppInfo();
+    public BeerbongAppInfo mLocalHook = new BeerbongAppInfo();
 
     public static boolean sIsHybridModeEnabled;
 
@@ -69,7 +71,7 @@ public class ExtendedPropertiesUtils {
     /**
      * Contains all the details for an application
      */
-    public static class CyanfoxAppInfo {
+    public static class BeerbongAppInfo {
 
         public String name = "";
         public String path = "";
@@ -77,6 +79,8 @@ public class ExtendedPropertiesUtils {
         public int pid;
         public ApplicationInfo info;
         public int dpi;
+        public int layout;
+        public int force;
         public int firstRun;
         public float scaledDensity;
         public float density;
@@ -92,32 +96,53 @@ public class ExtendedPropertiesUtils {
     /**
      * Set app configuration for the input argument <code>info</code>. This is
      * done by fetching properties.conf or our stored {@link HashMap}.
-     *
+     * 
      * @param info
      *            instance containing app details
      */
-    public static void setAppConfiguration(CyanfoxAppInfo info) {
+    public static void setAppConfiguration(BeerbongAppInfo info) {
         if (sIsHybridModeEnabled) {
             // Load default values to be used in case that property is
             // missing from configuration.
             boolean isSystemApp = info.path.contains("system/app");
-            int defaultDpi = Integer.parseInt(getProperty(BEERBONG_PREFIX + (isSystemApp ?
-                    "system_default_dpi" : (info.path.length() == 0 ? "0" : "user_default_dpi"))));
+            int defaultDpi = getActualProperty(BEERBONG_PREFIX
+                    + (isSystemApp ? "system_default_dpi" : (info.path.length() == 0 ? "0"
+                            : "user_default_dpi")));
+            int defaultLayout = getActualProperty(BEERBONG_PREFIX + "user_default_layout");
+
+            if (defaultLayout == 0) {
+                defaultLayout = getActualProperty("com.android.systemui.layout");
+            }
+            if (defaultDpi == 0) {
+                defaultDpi = getActualProperty("com.android.systemui.dpi");
+            }
+
+            // Layout fetching.
+            info.layout = Integer.parseInt(getProperty(info.name + BEERBONG_LAYOUT_SUFFIX,
+                    String.valueOf(defaultLayout)));
 
             // DPI fetching.
-            info.dpi = Integer.parseInt(getProperty(info.name + BEERBONG_DPI_SUFFIX, String.valueOf(defaultDpi)));
+            info.dpi = Integer.parseInt(getProperty(info.name + BEERBONG_DPI_SUFFIX,
+                    String.valueOf(defaultDpi)));
+            if (info.dpi == 0) {
+                info.dpi = defaultDpi;
+            }
 
             // Extra density fetching.
             info.density = Float.parseFloat(getProperty(info.name + BEERBONG_DENSITY_SUFFIX));
-            info.scaledDensity = Float.parseFloat(getProperty(info.name + BEERBONG_SCALEDDENSITY_SUFFIX));
+            info.scaledDensity = Float.parseFloat(getProperty(info.name
+                    + BEERBONG_SCALEDDENSITY_SUFFIX));
 
             // In case that densities aren't determined in previous step
             // we calculate it by dividing DPI by default density (160).
             if (info.dpi != 0) {
-                info.density = info.density == 0 ? info.dpi / (float) DisplayMetrics.DENSITY_DEFAULT : info.density;
-                info.scaledDensity = info.scaledDensity == 0 ? info.dpi / (float) DisplayMetrics.DENSITY_DEFAULT
-                        : info.scaledDensity;
+                info.density = info.density == 0 ? info.dpi
+                        / (float) DisplayMetrics.DENSITY_DEFAULT : info.density;
+                info.scaledDensity = info.scaledDensity == 0 ? info.dpi
+                        / (float) DisplayMetrics.DENSITY_DEFAULT : info.scaledDensity;
             }
+
+            info.force = Integer.parseInt(getProperty(info.name + BEERBONG_FORCE_SUFFIX));
 
             info.firstRun = 0;
 
@@ -129,7 +154,7 @@ public class ExtendedPropertiesUtils {
     /**
      * Overrides current hook with input parameter <code>mode</code>, wich is an
      * enum interface that stores basic override possibilities.
-     *
+     * 
      * @param input
      *            object to be overriden
      * @param mode
@@ -151,6 +176,8 @@ public class ExtendedPropertiesUtils {
                         mLocalHook.name = tempProps.mLocalHook.name;
                         mLocalHook.path = tempProps.mLocalHook.path;
                         mLocalHook.dpi = tempProps.mLocalHook.dpi;
+                        mLocalHook.layout = tempProps.mLocalHook.layout;
+                        mLocalHook.force = tempProps.mLocalHook.force;
                         mLocalHook.scaledDensity = tempProps.mLocalHook.scaledDensity;
                         mLocalHook.density = tempProps.mLocalHook.density;
                     }
@@ -163,7 +190,9 @@ public class ExtendedPropertiesUtils {
                     break;
                 case FullNameExclude:
                     tempInfo = getAppInfoFromPath((String) input);
-                    if (tempInfo != null && !isHooked()) {
+                    if (tempInfo != null
+                            && (!isHooked() || getProperty(
+                                    tempInfo.packageName + BEERBONG_FORCE_SUFFIX).equals("1"))) {
                         mLocalHook.info = tempInfo;
                     }
                     break;
@@ -191,7 +220,8 @@ public class ExtendedPropertiesUtils {
     }
 
     public static boolean isHooked() {
-        return (isInitialized() && !mGlobalHook.name.equals("android") && !mGlobalHook.name.equals(""));
+        return (isInitialized() && !mGlobalHook.name.equals("android") && !mGlobalHook.name
+                .equals(""));
     }
 
     public boolean getActive() {
@@ -218,6 +248,10 @@ public class ExtendedPropertiesUtils {
         return mLocalHook.active ? mLocalHook.dpi : mGlobalHook.dpi;
     }
 
+    public int getLayout() {
+        return mLocalHook.active ? mLocalHook.layout : mGlobalHook.layout;
+    }
+
     public float getScaledDensity() {
         return mLocalHook.active ? mLocalHook.scaledDensity : mGlobalHook.scaledDensity;
     }
@@ -226,9 +260,13 @@ public class ExtendedPropertiesUtils {
         return mLocalHook.active ? mLocalHook.density : mGlobalHook.density;
     }
 
+    public boolean getForce() {
+        return (mLocalHook.active ? mLocalHook.force : mGlobalHook.force) == 1;
+    }
+
     /**
      * Returns whether if device is running hybrid mode
-     *
+     * 
      * @return hybrid mode enabled
      */
     public static boolean isHybridModeEnabled() {
@@ -236,24 +274,42 @@ public class ExtendedPropertiesUtils {
     }
 
     /**
+     * Returns whether if device is on phone UI or not
+     * 
+     * @return device is phone
+     */
+    public static boolean isPhone() {
+        int layout;
+        String prop = readProperty("com.android.systemui.layout", "0");
+        if (isParsableToInt(prop)) {
+            layout = Integer.parseInt(prop);
+        } else {
+            layout = getActualProperty(prop);
+        }
+        return layout <= 360;
+
+    }
+
+    /**
      * Returns whether if device is on tablet UI or not
-     *
+     * 
      * @return device is tablet
      */
     public static boolean isTablet() {
-        int dpi;
-        String prop = readProperty("com.android.systemui.dpi", "0");
+        int layout;
+        String prop = readProperty("com.android.systemui.layout", "0");
         if (isParsableToInt(prop)) {
-            dpi = Integer.parseInt(prop);
+            layout = Integer.parseInt(prop);
         } else {
-            dpi = getActualProperty(prop);
+            layout = getActualProperty(prop);
         }
-        return dpi < 213;
+        return layout >= 1000;
+
     }
 
     /**
      * Returns an {@link ApplicationInfo}, with the given path.
-     *
+     * 
      * @param path
      *            the apk path
      * @return application info
@@ -272,7 +328,7 @@ public class ExtendedPropertiesUtils {
 
     /**
      * Returns an {@link ApplicationInfo}, with the given package name.
-     *
+     * 
      * @param packageName
      *            the application package name
      * @return application info
@@ -291,15 +347,15 @@ public class ExtendedPropertiesUtils {
 
     /**
      * Returns an {@link ApplicationInfo}, with the given PID.
-     *
+     * 
      * @param pid
      *            the application PID
      * @return application info
      */
     public static ApplicationInfo getAppInfoFromPID(int pid) {
         if (isInitialized()) {
-            List<RunningAppProcessInfo> mProcessList = ((ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE))
-                    .getRunningAppProcesses();
+            List<RunningAppProcessInfo> mProcessList = ((ActivityManager) mContext
+                    .getSystemService(Context.ACTIVITY_SERVICE)).getRunningAppProcesses();
             Iterator<RunningAppProcessInfo> mProcessListIt = mProcessList.iterator();
             while (mProcessListIt.hasNext()) {
                 ActivityManager.RunningAppProcessInfo mAppInfo = (ActivityManager.RunningAppProcessInfo) (mProcessListIt
@@ -315,7 +371,7 @@ public class ExtendedPropertiesUtils {
     /**
      * Traces the input argument <code>msg</code> as a log. Used for debugging.
      * Should not be used on public classes.
-     *
+     * 
      * @param msg
      *            the message to log
      */
@@ -346,7 +402,7 @@ public class ExtendedPropertiesUtils {
      * Returns a {@link String}, containing the result of the configuration for
      * the input argument <code>prop</code>. If the property is not found it
      * returns zero.
-     *
+     * 
      * @param prop
      *            a string containing the property to checkout
      * @return current stored value of property
@@ -359,7 +415,7 @@ public class ExtendedPropertiesUtils {
      * Returns a {@link String}, containing the result of the configuration for
      * the input argument <code>prop</code>. If the property is not found it
      * returns the input argument <code>def</code>.
-     *
+     * 
      * @param prop
      *            a string containing the property to checkout
      * @param def
@@ -390,7 +446,7 @@ public class ExtendedPropertiesUtils {
      * the input argument <code>prop</code>. If the property is not found it
      * returns the input argument <code>def</code>. This property is directly
      * read from the configuration file.
-     *
+     * 
      * @param prop
      *            a string containing the property to checkout
      * @param def
@@ -418,7 +474,7 @@ public class ExtendedPropertiesUtils {
      * actually load for the input argument <code>property</code>. it differs
      * from {@link #getProperty(String, String) getProperty}, because the values
      * returned will never be zero.
-     *
+     * 
      * @param property
      *            a string containing the property to checkout
      * @return the actual integer value of the selected property
@@ -429,13 +485,24 @@ public class ExtendedPropertiesUtils {
         boolean getProp = false;
 
         if (property.endsWith(BEERBONG_DPI_SUFFIX)) {
-            ApplicationInfo appInfo = getAppInfoFromPackageName(property.substring(0, property.length()
-                    - BEERBONG_DPI_SUFFIX.length()));
+            ApplicationInfo appInfo = getAppInfoFromPackageName(property.substring(0,
+                    property.length() - BEERBONG_DPI_SUFFIX.length()));
             if (appInfo != null) {
-                boolean isSystemApp =
-                        appInfo.sourceDir.substring(0, appInfo.sourceDir.lastIndexOf("/")).contains("system/app");
-                result = Integer.parseInt(getProperty(property, getProperty(BEERBONG_PREFIX + (isSystemApp ?
-                        "system_default_dpi" : "user_default_dpi"))));
+                boolean isSystemApp = appInfo.sourceDir.substring(0,
+                        appInfo.sourceDir.lastIndexOf("/")).contains("system/app");
+                result = Integer.parseInt(getProperty(property, getProperty(BEERBONG_PREFIX
+                        + (isSystemApp ? "system_default_dpi" : "user_default_dpi"))));
+            } else {
+                getProp = true;
+            }
+        } else if (property.endsWith(BEERBONG_LAYOUT_SUFFIX)) {
+            ApplicationInfo appInfo = getAppInfoFromPackageName(property.substring(0,
+                    property.length() - BEERBONG_LAYOUT_SUFFIX.length()));
+            if (appInfo != null) {
+                boolean isSystemApp = appInfo.sourceDir.substring(0,
+                        appInfo.sourceDir.lastIndexOf("/")).contains("system/app");
+                result = Integer.parseInt(getProperty(property, getProperty(BEERBONG_PREFIX
+                        + (isSystemApp ? "system_default_layout" : "user_default_layout"))));
             } else {
                 getProp = true;
             }
@@ -447,8 +514,8 @@ public class ExtendedPropertiesUtils {
             result = Integer.parseInt(getProperty(property));
 
         if (result == 0) {
-            result = Integer.parseInt(property.endsWith("dpi") ? getProperty(BEERBONG_PREFIX + "rom_default_dpi")
-                    : getProperty(BEERBONG_PREFIX + "rom_default_layout"));
+            result = Integer.parseInt(property.endsWith("dpi") ? getProperty(BEERBONG_PREFIX
+                    + "rom_default_dpi") : getProperty(BEERBONG_PREFIX + "rom_default_layout"));
         }
 
         return result;
@@ -457,7 +524,7 @@ public class ExtendedPropertiesUtils {
     /**
      * Returns a {@link Boolean}, meaning if the input argument is an integer
      * number.
-     *
+     * 
      * @param str
      *            the string to be tested
      * @return the string is an integer number
@@ -472,7 +539,8 @@ public class ExtendedPropertiesUtils {
     }
 
     public void debugOut(String msg) {
-        Log.i(TAG + ":" + msg, "Init=" + (mMainThread != null && mContext != null &&
-                mPackageManager != null) + " App=" + getName() + " Dpi=" + getDpi());
+        Log.i(TAG + ":" + msg, "Init="
+                + (mMainThread != null && mContext != null && mPackageManager != null) + " App="
+                + getName() + " Dpi=" + getDpi());
     }
 }
