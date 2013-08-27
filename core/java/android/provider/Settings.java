@@ -2688,13 +2688,6 @@ public final class Settings {
         public static final String PIE_SENSITIVITY = "pie_sensitivity";
 
         /**
-         * User Interface State
-         * 1 = Rebuild UI, resets to 0 automatically
-         * @hide
-         */
-        public static final String USER_INTERFACE_STATE = "user_interface_state";
-
-        /**
          * Quick Settings Panel Tiles to Use
          *
          * @hide
