@@ -3079,6 +3079,12 @@ public final class Settings {
          */
         public static final String NOTIF_ALPHA = "notif_alpha";  
 
+        /**
+         * Network speed indicator
+         * @hide
+         */
+        public static final String STATUS_BAR_TRAFFIC_ENABLE = "status_bar_traffic_enable";
+
 	/**
          * Circle battery icon color
          * in statusbar
