@@ -70,6 +70,10 @@ public class PhoneStatusBarView extends PanelBar {
     PanelView mLastFullyOpenedPanel = null;
     PanelView mNotificationPanel, mSettingsPanel;
     private boolean mShouldFade;
+    
+    float mAlpha;
+    int mAlphaMode;
+    int mStatusBarColor;
 
     private Runnable mUpdateInHomeAlpha = new Runnable() {
         @Override
