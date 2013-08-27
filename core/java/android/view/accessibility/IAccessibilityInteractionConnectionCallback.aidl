@@ -23,6 +23,7 @@ import java.util.List;
  * Callback for specifying the result for an asynchronous request made
  * via calling a method on IAccessibilityInteractionConnectionCallback.
  *
+ * @hide
  */
 oneway interface IAccessibilityInteractionConnectionCallback {
 
