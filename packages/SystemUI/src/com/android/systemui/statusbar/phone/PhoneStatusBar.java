@@ -1745,11 +1745,7 @@ public class PhoneStatusBar extends BaseStatusBar {
     final int FLIP_DURATION = (FLIP_DURATION_IN + FLIP_DURATION_OUT);
 
     Animator mScrollViewAnim, mFlipSettingsViewAnim, mNotificationButtonAnim,
-<<<<<<< HEAD
-        mSettingsButtonAnim, mHaloButtonAnim, mClearButtonAnim; 
-=======
-        mSettingsButtonAnim, mClearButtonAnim, mRibbonViewAnim;
->>>>>>> d7ba85c0e7f1c7b427312463145594e6f2a0255a
+        mSettingsButtonAnim, mHaloButtonAnim, mClearButtonAnim, mRibbonViewAnim;
 
     @Override
     public void animateExpandNotificationsPanel() {
@@ -1984,15 +1980,11 @@ public class PhoneStatusBar extends BaseStatusBar {
                 ObjectAnimator.ofFloat(mSettingsButton, View.ALPHA, 0f)
                     .setDuration(FLIP_DURATION),
                     mScrollView, View.INVISIBLE));
-<<<<<<< HEAD
-        mPowerWidget.setVisibility(View.GONE);
-	mHaloButtonAnim = start(
+        mHaloButtonAnim = start(
             setVisibilityWhenDone(
                 ObjectAnimator.ofFloat(mHaloButton, View.ALPHA, 0f)
                     .setDuration(FLIP_DURATION),
                     mScrollView, View.INVISIBLE));
-=======
->>>>>>> d7ba85c0e7f1c7b427312463145594e6f2a0255a
         mNotificationButton.setVisibility(View.VISIBLE);
         mNotificationButtonAnim = start(
             ObjectAnimator.ofFloat(mNotificationButton, View.ALPHA, 1f)
