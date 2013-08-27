@@ -28,6 +28,7 @@ import android.os.ParcelFileDescriptor;
  * not. Running privileged operations by the shell user on behalf of an
  * instrumentation is needed for running UiTestCases. 
  *
+ * {@hide}
  */
 interface IUiAutomationConnection {
     void connect(IAccessibilityServiceClient client);
