@@ -2748,7 +2748,7 @@ public final class Settings {
          * Configurable LTE or 4G icon - up to per user defined
          * @hide
          */
-+        public static final String SHOW_LTE_OR_FOURGEE = "show_lte_or_fourgee";
+        public static final String SHOW_LTE_OR_FOURGEE = "show_lte_or_fourgee";
 
         /**
          * Quick Settings Panel Dynamic Tiles
