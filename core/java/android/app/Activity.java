@@ -2477,7 +2477,9 @@ public class Activity extends ContextThemeWrapper
     }
     
     public int getStatusBarHeight() {
-        return getResources().getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);    
+        return getResources().getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height); 
+        
+    }
     
     /**
      * Called to process trackball events.  You can override this to
