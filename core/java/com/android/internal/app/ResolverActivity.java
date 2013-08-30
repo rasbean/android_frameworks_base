@@ -37,7 +37,6 @@ import android.os.Bundle;
 import android.os.PatternMatcher;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.provider.Settings;
 import android.util.Log;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -46,7 +45,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -76,14 +74,12 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
     private GridView mGrid;
     private Button mAlwaysButton;
     private Button mOnceButton;
-    private CheckBox mAlwaysCheckBox;
     private int mIconDpi;
     private int mIconSize;
     private int mMaxColumns;
     private int mLastSelected = GridView.INVALID_POSITION;
 
     private boolean mRegistered;
-    private int mUseAltGrid;
     private final PackageMonitor mPackageMonitor = new PackageMonitor() {
         @Override public void onSomePackagesChanged() {
             mAdapter.handlePackagesChanged();
@@ -120,7 +116,6 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             mLaunchedFromUid = -1;
         }
         mPm = getPackageManager();
-        mUseAltGrid = Settings.System.getInt(getContentResolver(), Settings.System.ACTIVITY_RESOLVER_USE_ALT, 0);
         mAlwaysUseOption = alwaysUseOption;
         mMaxColumns = getResources().getInteger(R.integer.config_maxResolverActivityColumns);
         intent.setComponent(null);
@@ -144,11 +139,7 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             finish();
             return;
         } else if (count > 1) {
-            if (mUseAltGrid == 1) {
-                ap.mView = getLayoutInflater().inflate(R.layout.resolver_grid_alt, null);
-            } else {
-                ap.mView = getLayoutInflater().inflate(R.layout.resolver_grid, null);
-            }
+            ap.mView = getLayoutInflater().inflate(R.layout.resolver_grid, null);
             mGrid = (GridView) ap.mView.findViewById(R.id.resolver_grid);
             mGrid.setAdapter(mAdapter);
             mGrid.setOnItemClickListener(this);
@@ -175,12 +166,8 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             final ViewGroup buttonLayout = (ViewGroup) findViewById(R.id.button_bar);
             if (buttonLayout != null) {
                 buttonLayout.setVisibility(View.VISIBLE);
-                if (mUseAltGrid == 1) {
-                    mAlwaysCheckBox = (CheckBox) buttonLayout.findViewById(R.id.checkbox_always);
-                } else {
-                    mAlwaysButton = (Button) buttonLayout.findViewById(R.id.button_always);
-                    mOnceButton = (Button) buttonLayout.findViewById(R.id.button_once);
-                }
+                mAlwaysButton = (Button) buttonLayout.findViewById(R.id.button_always);
+                mOnceButton = (Button) buttonLayout.findViewById(R.id.button_once);
             } else {
                 mAlwaysUseOption = false;
             }
@@ -263,10 +250,8 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
             final int checkedPos = mGrid.getCheckedItemPosition();
             final boolean enabled = checkedPos != GridView.INVALID_POSITION;
             mLastSelected = checkedPos;
-            if (mUseAltGrid == 0) {
-                mAlwaysButton.setEnabled(enabled);
-                mOnceButton.setEnabled(enabled);
-            } 
+            mAlwaysButton.setEnabled(enabled);
+            mOnceButton.setEnabled(enabled);
             if (enabled) {
                 mGrid.setSelection(checkedPos);
             }
@@ -278,16 +263,10 @@ public class ResolverActivity extends AlertActivity implements AdapterView.OnIte
         final int checkedPos = mGrid.getCheckedItemPosition();
         final boolean hasValidSelection = checkedPos != GridView.INVALID_POSITION;
         if (mAlwaysUseOption && (!hasValidSelection || mLastSelected != checkedPos)) {
-            if (mUseAltGrid == 0) {
-                mAlwaysButton.setEnabled(hasValidSelection);
-                mOnceButton.setEnabled(hasValidSelection);
-            }
+            mAlwaysButton.setEnabled(hasValidSelection);
+            mOnceButton.setEnabled(hasValidSelection);
             if (hasValidSelection) {
-                if (mUseAltGrid == 1) {
-                    startSelected(position,mAlwaysCheckBox.isChecked());
-                } else {
-                    mGrid.smoothScrollToPosition(checkedPos);
-                }
+                mGrid.smoothScrollToPosition(checkedPos);
             }
             mLastSelected = checkedPos;
         } else {

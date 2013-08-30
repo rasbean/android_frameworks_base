@@ -4024,15 +4024,7 @@ public final class Settings {
          * 0 - don't show
          * 1 - show
          */
-        public static final String NOTIFICATION_SHOW_WIFI_SSID = "notification_show_wifi_ssid"; 
-
-        /**
-         * use Alt Activity Resolver Grid
-         * boolean
-         *
-         * @hide
-         */
-        public static final String ACTIVITY_RESOLVER_USE_ALT = "activity_resolver_use_alt";
+        public static final String NOTIFICATION_SHOW_WIFI_SSID = "notification_show_wifi_ssid";
     }
 
     /**
