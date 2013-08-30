@@ -1715,12 +1715,6 @@ public final class Settings {
             "lock_pattern_tactile_feedback_enabled";
 
         /**
-         * Ability to enable/disable Daul pane prefs.
-         */
-        public static final String DUAL_PANE_PREFS = "dual_pane_prefs";
-
-
-        /**
          * A formatted string of the next alarm that is set, or the empty string
          * if there is no alarm set.
          */
