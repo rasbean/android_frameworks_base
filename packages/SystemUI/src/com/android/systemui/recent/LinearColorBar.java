@@ -30,8 +30,8 @@ import android.widget.LinearLayout;
 
 public class LinearColorBar extends LinearLayout {
 
-    static final int USED_MEM_COLOR = 0xff8d8d8d;
-    static final int USED_CACHE_COLOR = 0xff00aa00;
+    static final int USED_MEM_COLOR = 0xffb0d8e6;
+    static final int USED_CACHE_COLOR = 0xff6ac2e2;
     static final int USED_ACTIVE_APPS_COLOR = 0xff33b5e5;
     static final int FREE_COLOR = 0xffaaaaaa;
 
