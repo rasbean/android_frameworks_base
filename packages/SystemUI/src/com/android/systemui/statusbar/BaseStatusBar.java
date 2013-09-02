@@ -863,6 +863,10 @@ mContext.getContentResolver().registerContentObserver(
                             .getDimensionPixelSize(com.android.internal.R.dimen.status_bar_height);
                     float recentsItemTopPadding = statusBarHeight;
 
+                    if (getExpandedDesktopMode() == 2) {
+                        statusBarHeight = 0;
+                    }
+
                     float height = thumbTopMargin
                             + thumbHeight
                             + 2 * thumbBgPadding + textPadding + labelTextHeight
