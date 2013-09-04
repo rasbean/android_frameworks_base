@@ -1866,7 +1866,9 @@ mContext.getContentResolver().registerContentObserver(
                 lp.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND;
 
                 mWindowManager.addView(mPieContainer, lp);
-                mPieController.attachTo(mPieContainer);
+                if (mPieController != null) {
+                    mPieController.attachTo(mPieContainer);
+                } 
             }
 
             // add or update pie triggers
