@@ -73,6 +73,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private float mSnapThresholdSqr;
 
     private float mPieScale = 1.0f;
+    private boolean mMirrorRightPie = true; 
     private int mPadding;
 
     private boolean mActive = false;
@@ -138,7 +139,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         protected int mInner;
         protected int mOuter;
 
-        abstract public void prepare(Position position, float scale);
+        abstract public void prepare(Position position, float scale, boolean mirrorRightPie); 
 
         abstract public void draw(Canvas canvas, Position position);
 
@@ -268,6 +269,8 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
                     Settings.System.PIE_GRAVITY), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_TRIGGER_MASK), false, this);
+	    resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_MIRROR_RIGHT), false, this); 
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_SHOW_BACKGROUND), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
@@ -319,6 +322,8 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
     private void getDimensions() {
         mPieScale = Settings.System.getFloat(mContext.getContentResolver(),
                 Settings.System.PIE_SIZE, 1.0f);
+	mMirrorRightPie = Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PIE_MIRROR_RIGHT, 1) == 1; 
 
         final Resources res = mContext.getResources();
 
@@ -596,7 +601,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
         if (changed || mPosition != mLayoutDoneForPosition) {
             mDrawableCache.clear();
             for (PieSlice slice : mSlices) {
-                slice.prepare(mPosition, mPieScale);
+                slice.prepare(mPosition, mPieScale, mMirrorRightPie); 
                 if ((slice.flags & viewMask) == viewMask) {
                     mDrawableCache.add(slice);
                     // This is not nice, but it will help to keep the PieSlice abstract
@@ -604,7 +609,7 @@ public class PieLayout extends FrameLayout implements View.OnTouchListener {
                     if (slice instanceof PieSliceContainer) {
                         for (PieItem item : ((PieSliceContainer)slice).getItems()) {
                             if ((item.flags & viewMask) == viewMask) {
-                                item.prepare(mPosition, mPieScale);
+                                item.prepare(mPosition, mPieScale, mMirrorRightPie); 
                                 mDrawableCache.add(item);
                             }
                         }
