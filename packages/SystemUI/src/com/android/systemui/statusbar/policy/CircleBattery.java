@@ -89,6 +89,15 @@ public class CircleBattery extends ImageView implements BatteryController.Batter
             ContentResolver resolver = mContext.getContentResolver();
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_BATTERY), false, this);
+	    resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_DISABLE_STATUSBAR_INFO),
+                    false, this); 
+	    resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_TEXT_COLOR), false, this);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED), false, this);
             onChange(true);
         }
 
@@ -176,8 +185,39 @@ public class CircleBattery extends ImageView implements BatteryController.Batter
     }
 
     public void updateSettings() {
-        int batteryStyle = Settings.System.getIntForUser(mContext.getContentResolver(),
-                    Settings.System.STATUS_BAR_BATTERY, 0, UserHandle.USER_CURRENT);
+        int batteryStyle = Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_BATTERY, 0);
+
+            Resources res = getResources();
+
+            batteryStyle = (Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_BATTERY, 0));
+	    if (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.PIE_DISABLE_STATUSBAR_INFO, 0) == 1) {
+            batteryStyle = BatteryController.BATTERY_STYLE_GONE;
+            } 
+            mCircleColor = (Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_COLOR, res.getColor(R.color.holo_blue_dark)));
+            mCircleTextColor = (Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_TEXT_COLOR, res.getColor(R.color.holo_blue_dark)));
+            mCircleAnimSpeed = (Settings.System.getInt(mContext.getContentResolver(),
+                    Settings.System.STATUS_BAR_CIRCLE_BATTERY_ANIMATIONSPEED, 3));
+
+	    int defaultColor = res.getColor(com.android.internal.R.color.holo_blue_light);
+
+            if (mCircleTextColor == -2) {
+                mCircleTextColor = defaultColor;
+            }
+            if (mCircleColor == -2) {
+                mCircleColor = defaultColor;
+            }
+
+            /*
+	     * initialize vars and force redraw
+	     */
+            initializeCircleVars();
+            mRectLeft = null;
+            mCircleSize = 0;
 
         mActivated = (batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE
                 || batteryStyle == BatteryController.BATTERY_STYLE_CIRCLE_PERCENT);
