@@ -124,7 +124,7 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected static final boolean ENABLE_INTRUDERS = false;
 
     private boolean mPieShowTrigger = false;
-    private boolean mDisableTriggers = false; 
+    private boolean mDisableTriggers = false;
     private float mPieTriggerThickness;
     private float mPieTriggerHeight;
     private int mPieTriggerGravityLeftRight; 
@@ -258,6 +258,8 @@ public abstract class BaseStatusBar extends SystemUI implements
                                         + event.getAxisValue(MotionEvent.AXIS_Y) + ") with position: "
                                         + tracker.position.name());
                             }
+                            // set the snap points depending on current trigger and mask
+                            mPieContainer.setSnapPoints(mPieTriggerMask & ~mPieTriggerSlots);
                             // send the activation to the controller
                             mPieController.activateFromTrigger(v, event, tracker.position);
                             // forward a spoofed ACTION_DOWN event
@@ -523,6 +525,8 @@ mContext.getContentResolver().registerContentObserver(
         // this calls attachPie() implicitly
         mSettingsObserver.onChange(true);
         mSettingsObserver.observe();
+
+	mLocale = mContext.getResources().getConfiguration().locale;
 
         // Listen for HALO enabled switch
         mContext.getContentResolver().registerContentObserver(
@@ -920,10 +924,10 @@ mContext.getContentResolver().registerContentObserver(
                             + thumbBgPadding + thumbLeftMargin);
                     y = (int) (dm.heightPixels
                             - res.getDimensionPixelSize(R.dimen.status_bar_recents_thumbnail_height) - thumbBgPadding);
-                    //if (mLayoutDirection == View.LAYOUT_DIRECTION_RTL) {
-                    //    x = dm.widthPixels - x - res
-                    //            .getDimensionPixelSize(R.dimen.status_bar_recents_thumbnail_width);
-                    //}
+                    if (mLayoutDirection == View.LAYOUT_DIRECTION_RTL) {
+                        x = dm.widthPixels - x - res
+                                .getDimensionPixelSize(R.dimen.status_bar_recents_thumbnail_width);
+                    }
 
                 } else { // if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     float thumbTopMargin = res
@@ -1898,8 +1902,8 @@ mContext.getContentResolver().registerContentObserver(
         }
     }
 
-    public void disableTriggers( boolean disableTriggers) {
-        if (mPieContainer != null) {
+    public void disableTriggers(boolean disableTriggers) {
+        if (isPieEnabled()) {
             mDisableTriggers = disableTriggers;
             setupTriggers(false);
         }
@@ -1912,28 +1916,28 @@ mContext.getContentResolver().registerContentObserver(
     } 
 
     public void setupTriggers(boolean forceDisableBottomAndTopTrigger) {
-            if (mDisableTriggers) { 
+            if (mDisableTriggers) {
                 updatePieTriggerMask(0);
                 return;
-            } 
+            }
             mForceDisableBottomAndTopTrigger = forceDisableBottomAndTopTrigger;
 
-	    // get expanded desktop values 
-            int expandedMode = Settings.System.getInt(mContext.getContentResolver(),
+            // get expanded desktop values
+            int expandedStyle = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.EXPANDED_DESKTOP_STYLE, 0);
             boolean expanded = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.EXPANDED_DESKTOP_STATE, 0) == 1;
 
-	    // get statusbar auto hide value
+            // get statusbar auto hide value
             boolean autoHideStatusBar = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.HIDE_STATUSBAR, 0) == 1;
 
-            // get navigation bar values 
+            // get navigation bar values
             final int showByDefault = mContext.getResources().getBoolean(
                     com.android.internal.R.bool.config_showNavigationBar) ? 1 : 0;
             boolean hasNavigationBar = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.NAVIGATION_BAR_SHOW, showByDefault) == 1;
-	    boolean navBarCanMove = Settings.System.getInt(mContext.getContentResolver(),
+            boolean navBarCanMove = Settings.System.getInt(mContext.getContentResolver(),
                         Settings.System.NAVIGATION_BAR_CAN_MOVE, 1) == 1
                         && screenLayout() != Configuration.SCREENLAYOUT_SIZE_LARGE;
             boolean navigationBarHeight = Settings.System.getInt(mContext.getContentResolver(),
@@ -1949,11 +1953,11 @@ mContext.getContentResolver().registerContentObserver(
                                 mContext.getResources().getDimensionPixelSize(
                                                 com.android.internal.R.dimen.navigation_bar_width)) != 0;
 
-            // disable on phones in landscape right trigger for navbar 
+            // disable on phones in landscape right trigger for navbar
             boolean disableRightTriggerForNavbar =
-                    !isScreenPortrait() 
+                    !isScreenPortrait()
                     && hasNavigationBar
-                    && ((expandedMode == 2 && expanded) || !expanded)
+                    && ((expandedStyle == 2 && expanded) || !expanded)
                     && navBarCanMove
                     && navigationBarWidth;
 
@@ -1962,7 +1966,7 @@ mContext.getContentResolver().registerContentObserver(
                                 || (hasNavigationBar && !isScreenPortrait() && !navBarCanMove
                                     && navigationBarHeightLandscape);
 
-	    // let's set the triggers 
+            // let's set the triggers
             if ((!expanded && hasNavigationBar && !autoHideStatusBar)
                 || mForceDisableBottomAndTopTrigger) {
                 if (disableRightTriggerForNavbar) {
@@ -1972,7 +1976,7 @@ mContext.getContentResolver().registerContentObserver(
                                     | Position.RIGHT.FLAG);
                 }
             } else if ((!expanded && !hasNavigationBar && !autoHideStatusBar)
-                || (expandedMode == 1 && expanded && !autoHideStatusBar)) {
+                || (expandedStyle == 1 && expanded && !autoHideStatusBar)) {
                 if (!mPieImeIsShowing) {
                     if (disableRightTriggerForNavbar) {
                         updatePieTriggerMask(Position.LEFT.FLAG
@@ -1990,7 +1994,7 @@ mContext.getContentResolver().registerContentObserver(
                                         | Position.RIGHT.FLAG);
                     }
                 }
-            } else if (expandedMode == 2 && expanded && hasNavigationBar
+            } else if (expandedStyle == 2 && expanded && hasNavigationBar
                         || !expanded && hasNavigationBar && autoHideStatusBar) {
                 if (disableRightTriggerForNavbar) {
                     updatePieTriggerMask(Position.LEFT.FLAG
@@ -2011,7 +2015,7 @@ mContext.getContentResolver().registerContentObserver(
                                         | Position.BOTTOM.FLAG
                                         | Position.RIGHT.FLAG
                                         | Position.TOP.FLAG);
-                    } 
+                    }
                 } else {
                     if (disableRightTriggerForNavbar) {
                         updatePieTriggerMask(Position.LEFT.FLAG
@@ -2020,7 +2024,7 @@ mContext.getContentResolver().registerContentObserver(
                         updatePieTriggerMask(Position.LEFT.FLAG
                                         | Position.RIGHT.FLAG
                                         | Position.TOP.FLAG);
-                    } 
+                    }
                 }
             }
     }
@@ -2028,9 +2032,6 @@ mContext.getContentResolver().registerContentObserver(
     private void updatePieTriggerMask(int newMask) {
         int oldState = mPieTriggerSlots & mPieTriggerMask;
         mPieTriggerMask = newMask;
-
-	// pass actual trigger mask and slots to the attached container
-        mPieContainer.setSnapPoints(mPieTriggerMask & ~mPieTriggerSlots);
 
         // first we check, if it would make a change
         if ((mPieTriggerSlots & mPieTriggerMask) != oldState
@@ -2043,7 +2044,7 @@ mContext.getContentResolver().registerContentObserver(
 
     // This should only be called, when is is clear that the pie controls are active
     private void refreshPieTriggers() {
-	for (Position g : Position.values()) {
+        for (Position g : Position.values()) {
             View trigger = mPieTrigger[g.INDEX];
             if (trigger == null && (mPieTriggerSlots & mPieTriggerMask & g.FLAG) != 0) {
                 trigger = new View(mContext);
@@ -2080,23 +2081,23 @@ mContext.getContentResolver().registerContentObserver(
 
     private WindowManager.LayoutParams getPieTriggerLayoutParams(Position position) {
         final Resources res = mContext.getResources();
+
         float pieTriggerHeight = mPieTriggerHeight;
         final float pieImePortraitMinHeight = 0.52f;
-        final float pieImeLandscapeMinHeight = 0.32f; 
-
+        final float pieImeLandscapeMinHeight = 0.32f;
         if (mPieImeIsShowing && isScreenPortrait()
                 && !mForceDisableBottomAndTopTrigger
                 && pieTriggerHeight > pieImePortraitMinHeight) {
-            pieTriggerHeight = pieImePortraitMinHeight; 
+            pieTriggerHeight = pieImePortraitMinHeight;
         } else if (mPieImeIsShowing && !isScreenPortrait()
                 && !mForceDisableBottomAndTopTrigger
                 && pieTriggerHeight > pieImeLandscapeMinHeight) {
-            pieTriggerHeight = pieImeLandscapeMinHeight; 
+            pieTriggerHeight = pieImeLandscapeMinHeight;
         }
 
         int width = (int) (res.getDisplayMetrics().widthPixels * 0.9f);
         int height = (int) (res.getDisplayMetrics().heightPixels * pieTriggerHeight);
-        int triggerThickness = (int) ((mPieTriggerThickness * res.getDisplayMetrics().density) + 0.5); 
+        int triggerThickness = (int) ((mPieTriggerThickness * res.getDisplayMetrics().density) + 0.5);
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                 (position == Position.TOP || position == Position.BOTTOM
                         ? width : triggerThickness),
@@ -2105,7 +2106,7 @@ mContext.getContentResolver().registerContentObserver(
                 WindowManager.LayoutParams.TYPE_STATUS_BAR_PANEL,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                        | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH, 
+                        | WindowManager.LayoutParams.FLAG_SPLIT_TOUCH,
                 PixelFormat.TRANSLUCENT);
         // This title is for debugging only. See: dumpsys window
         lp.setTitle("PieTrigger" + position.name());
@@ -2119,8 +2120,8 @@ mContext.getContentResolver().registerContentObserver(
         if (mPieImeIsShowing && !mForceDisableBottomAndTopTrigger
                     && (position == Position.LEFT || position == Position.RIGHT)) {
             lp.gravity = position.ANDROID_GRAVITY | Gravity.TOP;
-	} else if (position == Position.LEFT || position == Position.RIGHT) {
-            lp.gravity = position.ANDROID_GRAVITY | mPieTriggerGravityLeftRight; 
+        } else if (position == Position.LEFT || position == Position.RIGHT) {
+            lp.gravity = position.ANDROID_GRAVITY | mPieTriggerGravityLeftRight;
         } else {
             lp.gravity = position.ANDROID_GRAVITY;
         }
