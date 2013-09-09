@@ -413,15 +413,34 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             }
         }
 
-        setButtonWithTagVisibility(NavigationButtons.BACK, disableBack ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility(NavigationButtons.HOME, disableHome ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility(NavigationButtons.RECENT, disableRecent ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility(NavigationButtons.RECENT, disableRecent ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility(NavigationButtons.ALWAYS_MENU, disableRecent ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility(NavigationButtons.MENU_BIG, disableRecent ? View.INVISIBLE : View.VISIBLE);
-        setButtonWithTagVisibility(NavigationButtons.SEARCH, disableRecent ? View.INVISIBLE : View.VISIBLE);
-        getSearchLight().setVisibility((disableHome && !disableSearch) ? View.VISIBLE : View.GONE);
-        getSearchLight().setVisibility(keygaurdProbablyEnabled ? View.VISIBLE : View.GONE);
+        if (mButtonsConfig != null && !mButtonsConfig.isEmpty()) {
+            for (int j = 0; j < mButtonsConfig.size(); j++) {
+                View v = (View) findViewWithTag((mVertical ? "key_land_" : "key_") + j);
+                if (v != null) {
+                    int vid = v.getId();
+                    if (vid == R.id.back) {
+                        v.setVisibility(disableBack ? View.INVISIBLE : View.VISIBLE);
+                    } else if (vid == R.id.recent_apps) {
+                        v.setVisibility(disableRecent ? View.INVISIBLE : View.VISIBLE);
+                    } else { // treat all other buttons as same rule as home
+                        v.setVisibility(disableHome ? View.INVISIBLE : View.VISIBLE);
+                    }
+                }
+            }
+        }
+
+        View searchLight = getSearchLight();
+        if (searchLight != null) {
+            searchLight.setVisibility(keyguardProbablyEnabled ? View.VISIBLE : View.GONE);
+            if (mNavBarButtonColor == -1) {
+                ((ImageView) searchLight).setColorFilter(null);
+            } else {
+                ((ImageView) searchLight).setColorFilter(mNavBarButtonColor, Mode.SRC_ATOP);
+            }
+            ((ImageView) searchLight).setAlpha((1 - (Settings.System.getFloat(
+                mContext.getContentResolver(),
+                Settings.System.NAVIGATION_BAR_BUTTON_ALPHA, 0.3f))));
+        } 
         updateKeyguardAlpha();
     }
 
