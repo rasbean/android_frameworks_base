@@ -1916,6 +1916,9 @@ mContext.getContentResolver().registerContentObserver(
     } 
 
     public void setupTriggers(boolean forceDisableBottomAndTopTrigger) {
+	    if (!isPieEnabled()) {
+                return;
+            } 
             boolean bottomTriggerEnabled = false;
             boolean topTriggerEnabled = false;
             boolean leftTriggerEnabled = false;
@@ -1969,10 +1972,10 @@ mContext.getContentResolver().registerContentObserver(
             if (!(mForceBottomTrigger && hasNavigationBar)) {
                 if ((mForceBottomTrigger && !hasNavigationBar
                         || mForceBottomTrigger && disableRightTriggerForNavbar)
-                    && !mForceDisableBottomAndTopTrigger) {
+                    && !forceDisableBottomAndTopTrigger) { 
                     bottomTriggerEnabled = true;
                 } else if ((!expanded && hasNavigationBar && !autoHideStatusBar)
-                    || mForceDisableBottomAndTopTrigger) {
+                    || forceDisableBottomAndTopTrigger) { 
                     leftTriggerEnabled = true;
                     rightTriggerEnabled = true;
                 } else if ((!expanded && !hasNavigationBar && !autoHideStatusBar)
@@ -2018,9 +2021,7 @@ mContext.getContentResolver().registerContentObserver(
         // first we check, if it would make a change
         if ((mPieTriggerSlots & mPieTriggerMask) != oldState
                 || mForceDisableBottomAndTopTrigger != oldForceDisableBottomAndTopTrigger) { 
-            if (isPieEnabled()) {
-                refreshPieTriggers();
-            }
+            refreshPieTriggers(); 
         }
     }
 
