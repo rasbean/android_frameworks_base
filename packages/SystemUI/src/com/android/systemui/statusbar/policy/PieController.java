@@ -130,8 +130,9 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
     public static final float EMPTY_ANGLE = 10;
     public static final float START_ANGLE = 180 + EMPTY_ANGLE;
 
-    private static final int MSG_INJECT_KEY_DOWN = 1066;
-    private static final int MSG_INJECT_KEY_UP = 1067;
+    private final static int MENU_VISIBILITY_ALWAYS = 0;
+    private final static int MENU_VISIBILITY_NEVER = 1;
+    private final static int MENU_VISIBILITY_SYSTEM = 2;
 
     private Context mContext;
     private PieLayout mPieContainer;
@@ -153,11 +154,14 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
 
     // all pie slices that are managed by the controller
     private PieSliceContainer mNavigationSlice;
-    private PieSliceContainer mNavigationSliceSecondLayer; 
+    private PieSliceContainer mNavigationSliceSecondLayer;
+    private PieItem mMenuButton;
     private PieSysInfo mSysInfo;
 
     private int mNavigationIconHints = 0;
     private int mDisabledFlags = 0;
+    private boolean mShowMenu = false;
+    private int mShowMenuVisibility;
     private Drawable mBackIcon;
     private Drawable mBackAltIcon;
     private boolean mIconResize = false;
@@ -302,13 +306,14 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.PIE_BUTTON_ALPHA), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_BUTTON_PRESSED_ALPHA), false, this);
-	    resolver.registerContentObserver(Settings.System.getUriFor(
-                    Settings.System.PIE_SECOND_LAYER_ACTIVE), false, this); 
-            resolver.registerContentObserver(
-                    Settings.System.getUriFor(Settings.System.PIE_LONG_PRESS_ENABLE),
-                    false,
-                    this);
+                    Settings.System.PIE_BUTTON_PRESSED_ALPHA), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_SECOND_LAYER_ACTIVE), false, this,
+                    UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.PIE_MENU), false, this,
+                    UserHandle.USER_ALL);
         }
 
         @Override
@@ -546,7 +551,12 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
             getCustomActionsAndConstruct(resolver, true, minimumImageSize); 
         } 
 
+        mShowMenuVisibility = Settings.System.getIntForUser(mContext.getContentResolver(),
+                Settings.System.PIE_MENU, MENU_VISIBILITY_SYSTEM,
+                UserHandle.USER_CURRENT);
+
         setNavigationIconHints(mNavigationIconHints, true);
+        setMenuVisibility(mShowMenu);
     }
 
     private void getCustomActionsAndConstruct(ContentResolver resolver,
@@ -600,7 +610,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
             }
         }
 
-        int buttonWidth = 7 / buttonNumber;
+        int buttonWidth = 10 / buttonsConfig.size();
+        ButtonConfig buttonConfig;
 
         for (int j = 0; j < buttonNumber; j++) {
             if (secondLayer) {
@@ -608,6 +619,14 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
             } else {
                 addItemToLayer(mNavigationSlice, buttonConfig, buttonWidth, minimumImageSize);
             }
+        }
+
+        if (!secondLayer) {
+            mMenuButton = constructItem(1, ButtonsConstants.ACTION_MENU,
+                    ButtonsConstants.ACTION_NULL,
+                    ButtonsConstants.ICON_EMPTY,
+                    minimumImageSize);
+            mNavigationSlice.addItem(mMenuButton);
         }
     }
 
@@ -685,42 +704,30 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
             }
         }
 
-        view.setImageDrawable(getPieSystemIconImage(clickAction));
-        if (mIconResize) {
-            resizeIcon(view, null, false);
-        }
-        return 0;
-    }
-
-    private Drawable getPieSystemIconImage(String uri) {
-        if (uri == null)
-            return mContext.getResources().getDrawable(R.drawable.ic_sysbar_null);
-
-        if (uri.startsWith("**")) {
-            if (uri.equals(ACTION_HOME)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_home);
-            } else if (uri.equals(ACTION_BACK)) {
-                mBackIcon = mContext.getResources().getDrawable(R.drawable.ic_sysbar_back);
-                mBackIcon = prepareBackIcon(mBackIcon, false, false);
-                return mBackIcon;
-            } else if (uri.equals(ACTION_RECENTS)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_recent);
-            } else if (uri.equals(ACTION_SCREENSHOT)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_screenshot);
-            } else if (uri.equals(ACTION_SEARCH)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_search);
-            } else if (uri.equals(ACTION_MENU)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_menu_big);
-            } else if (uri.equals(ACTION_IME)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_ime_switcher);
-            } else if (uri.equals(ACTION_LAST_APP)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_lastapp);
-            } else if (uri.equals(ACTION_KILL)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_killtask);
-            } else if (uri.equals(ACTION_POWER)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_power);
-            } else if (uri.equals(ACTION_NOTIFICATIONS)) {
-                return mContext.getResources().getDrawable(R.drawable.ic_sysbar_notifications);
+        if (iconUri != null && !iconUri.equals(ButtonsConstants.ICON_EMPTY)
+            && !iconUri.startsWith(ButtonsConstants.SYSTEM_ICON_IDENTIFIER)) {
+            if (clickAction.equals(ButtonsConstants.ACTION_BACK)) {
+                // back icon image needs to be handled seperatly
+                // all other is handled in PieItem
+                int customImageColorize = Settings.System.getInt(
+                        mContext.getContentResolver(),
+                        Settings.System.PIE_ICON_COLOR_MODE, 0);
+                mBackIcon = prepareBackIcon(d,
+                    (customImageColorize == 0 || customImageColorize == 2), true);
+            } else {
+                // custom images need to be forced to resize to fit better
+                resizeIcon(view, null, true);
+            }
+            return 2;
+        } else {
+            if (mIconResize) {
+                resizeIcon(view, null, false);
+            }
+            if (clickAction.startsWith("**")) {
+                if (clickAction.equals(ButtonsConstants.ACTION_BACK)) {
+                    mBackIcon = prepareBackIcon(d, false, false);
+                }
+                return 0;
             }
         }
         return mContext.getResources().getDrawable(R.drawable.ic_sysbar_null);
@@ -735,8 +742,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
         }
         Bitmap bitmap = ((BitmapDrawable) dOriginal).getBitmap();
         if (useSystemDimens) {
-            width = height = mContext.getResources()
-                .getDimensionPixelSize(com.android.internal.R.dimen.app_icon_size);
+            width = height = (int) (mContext.getResources()
+                .getDimensionPixelSize(com.android.internal.R.dimen.app_icon_size) * 0.9f);
         } else {
             width = bitmap.getWidth();
             height = bitmap.getHeight();
@@ -744,7 +751,8 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
         width = (int) (width * mIconResizeFactor);
         height = (int) (height * mIconResizeFactor);
 
-        Drawable dResized = new BitmapDrawable(mContext.getResources(), Bitmap.createScaledBitmap(bitmap, width, height, false));
+        Drawable dResized = new BitmapDrawable(mContext.getResources(),
+            Bitmap.createScaledBitmap(bitmap, width, height, false));
         if (d == null) {
             view.setImageDrawable(dResized);
             return null;
@@ -888,12 +896,24 @@ public class PieController implements BaseStatusBar.NavigationBarCallback,
                 item.show(!disableRecent);
             } 
         }
+        setMenuVisibility(mShowMenu, true);
     }
 
     @Override
     public void setMenuVisibility(boolean showMenu) {
-        // this call may come from outside
-        // nothing to do here
+        setMenuVisibility(showMenu, false);
+    }
+
+    private void setMenuVisibility(boolean showMenu, boolean force) {
+        if (!force && mShowMenu == showMenu) {
+            return;
+        }
+        if (mMenuButton != null) {
+            final boolean disableRecent = ((mDisabledFlags & View.STATUS_BAR_DISABLE_RECENT) != 0);
+            mMenuButton.show((showMenu || mShowMenuVisibility == MENU_VISIBILITY_ALWAYS)
+                && mShowMenuVisibility != MENU_VISIBILITY_NEVER && !disableRecent);
+        }
+        mShowMenu = showMenu;
     }
 
     @Override
